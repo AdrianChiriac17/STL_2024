@@ -48,14 +48,13 @@ int main()
         doctors.push_back({name, speciality});
         //cout << doctors[i].drId<< " " << doctors[i].speciality << " " << i << "\n";
     }
-    
 
     for (int i = 0; i < no_problems; i++)
     {
         string curr_problem = injuries[i].problem;
         string curr_target = injuries[i].speciality;
 
-        auto it = find_if(doctors.begin(), doctors.end(), [&curr_target](const Doctor& d) {
+        auto it = find_if(doctors.begin(), doctors.end(), [=](const Doctor& d) {
             return d.speciality == curr_target;
             });
 
