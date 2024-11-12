@@ -1,3 +1,4 @@
+///cerinta bonus
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -6,67 +7,90 @@
 
 using namespace std;
 
+
+/*
+	ne vin n probleme, care se pot rezolva numai cu o anumita specializare, fiecare problema are si o durata
+
+*/
+
+struct Problema
+{
+	string nume;
+	string specializare;
+	int durata;
+};
+
+
+/*
+	avem si m doctori, fiecare cu numele lui, si o specializare anume, mai am nevoie de un vector cu stringuri
+	cu ce va trata pe ziua de astazi si un nr de ore ocupate pana in acest moment
+*/
+
 struct Doctor
 {
-    string drId;
-    string speciality;
+	string nume;
+	string specializare;
+	vector<string>pe_astazi;
+	int ore_ocupate;
 };
-
-struct Patient
-{
-    string problem;
-    string speciality;
-};
-
 
 int main()
 {
-    ifstream inFile("input.txt");
+	//ifstream fin("input2");
+	
+	int nr_probleme;
+	fin >> nr_probleme;
+	vector<Problema>probleme(nr_probleme);
+	for(int i=0; i<nr_probleme; i++)
+	{
+		fin >> probleme[i].nume >> probleme[i].specializare >> probleme[i].durata;
+	}
+	int nr_doctori;
+	fin >> nr_doctori;
+	vector<Doctor>doctori(nr_doctori);
+	for (int i = 0; i < nr_doctori; i++)
+	{
+		fin >> doctori[i].nume >> doctori[i].specializare;
+		doctori[i].ore_ocupate = 0;
+	}
 
-    int no_problems, no_doctors;
-    string name, speciality;
-    vector<Patient>injuries;
-    vector<Doctor>doctors;
+	for (int i = 0; i < nr_probleme; i++)
+	{
+		string curr_specializare = probleme[i].specializare;
+		int curr_durata = probleme[i].durata;
+		string curr_problem_name = probleme[i].nume;
 
+		//caut curr_problem.specializare prin lista de medici
 
-    inFile >> no_problems;
+		auto it = find_if(doctori.begin(), doctori.end(), [curr_specializare, curr_durata](Doctor& d) 
+			{  return (curr_specializare == d.specializare) && (curr_durata + d.ore_ocupate <= 8);});
 
-    for (int i = 0; i < no_problems; i++)
-    {
-        inFile >> name;
-        inFile >> speciality;
-        injuries.push_back({name, speciality});
-        //cout << injuries[i].problem << " " << injuries[i].speciality << " " << i << "\n";
-    }
+		if (it != doctori.end())
+		{
+			//it va reprezenta doctorul pentru la care aceasta problema poate fi tratata
+			//int iterator = it - doctori.begin();
+			it->pe_astazi.push_back(curr_problem_name);
+			it->ore_ocupate += curr_durata;
+			/*
+			doctori[iterator].pe_astazi.push_back(curr_problem_name);
+			doctori[iterator].ore_ocupate += curr_durata;
+			*/
+		}
+	}
 
-    inFile >> no_doctors;
-    //cout << "\n";
-    for (int i = 0; i < no_doctors; i++)
-    {
-        inFile >> name;
-        inFile >> speciality;
-        doctors.push_back({name, speciality});
-        //cout << doctors[i].drId<< " " << doctors[i].speciality << " " << i << "\n";
-    }
+	for (int i = 0; i < nr_doctori; i++)
+	{
+		cout << doctori[i].nume << " " << doctori[i].pe_astazi.size();
+		if (doctori[i].pe_astazi.size() != 0)
+		{
+			cout << " ";
+			for (string& prb : doctori[i].pe_astazi)
+			{
+				cout << prb << " ";
+			}
+		}
+		cout << endl;
+	}
 
-    for (int i = 0; i < no_problems; i++)
-    {
-        string curr_problem = injuries[i].problem;
-        string curr_target = injuries[i].speciality;
-
-        auto it = find_if(doctors.begin(), doctors.end(), [=](const Doctor& d) {
-            return d.speciality == curr_target;
-            });
-
-        if (it != doctors.end())
-        {
-            cout << curr_problem << " Acceptat\n";
-        }
-        else
-        {
-            cout << curr_problem << " Respins\n";
-        }
-    }
-
-    return 0;
+	return 0;
 }
