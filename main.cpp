@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -16,6 +17,7 @@ struct Patient
     string problem;
     string speciality;
 };
+
 
 int main()
 {
@@ -34,24 +36,38 @@ int main()
         inFile >> name;
         inFile >> speciality;
         injuries.push_back({name, speciality});
-        cout << injuries[i].problem << " " << injuries[i].speciality << " " << i << "\n";
+        //cout << injuries[i].problem << " " << injuries[i].speciality << " " << i << "\n";
     }
 
     inFile >> no_doctors;
-    cout << "\n";
+    //cout << "\n";
     for (int i = 0; i < no_doctors; i++)
     {
         inFile >> name;
         inFile >> speciality;
         doctors.push_back({name, speciality});
-        cout << doctors[i].drId<< " " << doctors[i].speciality << " " << i << "\n";
+        //cout << doctors[i].drId<< " " << doctors[i].speciality << " " << i << "\n";
     }
-    /*
+    
+
     for (int i = 0; i < no_problems; i++)
     {
+        string curr_problem = injuries[i].problem;
+        string curr_target = injuries[i].speciality;
 
+        auto it = find_if(doctors.begin(), doctors.end(), [&curr_target](const Doctor& d) {
+            return d.speciality == curr_target;
+            });
 
-    }*/
+        if (it != doctors.end())
+        {
+            cout << curr_problem << " Acceptat\n";
+        }
+        else
+        {
+            cout << curr_problem << " Respins\n";
+        }
+    }
 
     return 0;
 }
