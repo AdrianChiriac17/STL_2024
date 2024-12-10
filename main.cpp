@@ -1,96 +1,84 @@
-///cerinta bonus
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <vector>
 #include <algorithm>
-
+#include <string>
+#include <queue>
 using namespace std;
 
-
-/*
-	ne vin n probleme, care se pot rezolva numai cu o anumita specializare, fiecare problema are si o durata
-
-*/
-
-struct Problema
-{
-	string nume;
-	string specializare;
-	int durata;
-};
-
-
-/*
-	avem si m doctori, fiecare cu numele lui, si o specializare anume, mai am nevoie de un vector cu stringuri
-	cu ce va trata pe ziua de astazi si un nr de ore ocupate pana in acest moment
-*/
+ifstream fin("input.txt");
 
 struct Doctor
 {
-	string nume;
-	string specializare;
-	vector<string>pe_astazi;
-	int ore_ocupate;
+	string Name;
+	vector<string>Specialties;
+	int liber_de_la=8;
+	vector<pair<string, int>>Answer; // .first=specialty .second=when they arrive
+};
+
+struct Problem
+{
+	string Name;
+	string SpecialtyNeeded;
+	int arrival_time;
+	int duration_of_treatment;
+	int priority;
+
+	bool operator<(const Problem& other) const 
+	{
+		// logic here
+		if (arrival_time != other.arrival_time)
+			return arrival_time > other.arrival_time;
+		return priority < other.priority;
+	}
 };
 
 int main()
 {
-	//ifstream fin("input2");
+	int HowManyProblems;
+	priority_queue<Problem>Problems;
+	int HowManyDoctors;
+	vector<Doctor>Doctors;
+
+	fin >> HowManyProblems;
+	for (int i = 1; i <= HowManyProblems; i++)
+	{
+		Problem p;
+		fin >> p.Name >> p.SpecialtyNeeded >> p.arrival_time >> p.duration_of_treatment >> p.priority;
+		Problems.push(p);
+	}
+
+	fin >> HowManyDoctors;
+	for (int i = 1; i <= HowManyDoctors; i++)
+	{
+		int HowManySpecialties;
+		Doctor d;
+		fin >> d.Name;
+		fin >> HowManySpecialties;
+		for (int j = 1; j <= HowManySpecialties; j++)
+		{
+			string spec;
+			fin >> spec;
+			d.Specialties.push_back(spec);
+		}
+		d.liber_de_la = 8;
+
+		Doctors.push_back(d);
+	}
+
+	//Afisare probleme sortate in pq
+	cout << "Afisare pq:\n";
+	cout << Problems.size() << "\n";
+	while (!Problems.empty())
+	{
+		Problem p = Problems.top();
+		cout << p.Name << " " << p.SpecialtyNeeded << " " << p.arrival_time << " " << p.duration_of_treatment << " " << p.priority << "\n";
+		Problems.pop();
+	}
+
+	//Rezolvarea problemei...
 	
-	int nr_probleme;
-	fin >> nr_probleme;
-	vector<Problema>probleme(nr_probleme);
-	for(int i=0; i<nr_probleme; i++)
-	{
-		fin >> probleme[i].nume >> probleme[i].specializare >> probleme[i].durata;
-	}
-	int nr_doctori;
-	fin >> nr_doctori;
-	vector<Doctor>doctori(nr_doctori);
-	for (int i = 0; i < nr_doctori; i++)
-	{
-		fin >> doctori[i].nume >> doctori[i].specializare;
-		doctori[i].ore_ocupate = 0;
-	}
-
-	for (int i = 0; i < nr_probleme; i++)
-	{
-		string curr_specializare = probleme[i].specializare;
-		int curr_durata = probleme[i].durata;
-		string curr_problem_name = probleme[i].nume;
-
-		//caut curr_problem.specializare prin lista de medici
-
-		auto it = find_if(doctori.begin(), doctori.end(), [curr_specializare, curr_durata](Doctor& d) 
-			{  return (curr_specializare == d.specializare) && (curr_durata + d.ore_ocupate <= 8);});
-
-		if (it != doctori.end())
-		{
-			//it va reprezenta doctorul pentru la care aceasta problema poate fi tratata
-			//int iterator = it - doctori.begin();
-			it->pe_astazi.push_back(curr_problem_name);
-			it->ore_ocupate += curr_durata;
-			/*
-			doctori[iterator].pe_astazi.push_back(curr_problem_name);
-			doctori[iterator].ore_ocupate += curr_durata;
-			*/
-		}
-	}
-
-	for (int i = 0; i < nr_doctori; i++)
-	{
-		cout << doctori[i].nume << " " << doctori[i].pe_astazi.size();
-		if (doctori[i].pe_astazi.size() != 0)
-		{
-			cout << " ";
-			for (string& prb : doctori[i].pe_astazi)
-			{
-				cout << prb << " ";
-			}
-		}
-		cout << endl;
-	}
+	//se mai putea si cu map de specializari 
 
 	return 0;
 }

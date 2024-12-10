@@ -144,6 +144,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="input.txt" />
     <Text Include="input2.txt" />
     <Text Include="input3.txt" />
   </ItemGroup>
