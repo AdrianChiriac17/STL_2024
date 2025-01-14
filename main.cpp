@@ -21,15 +21,12 @@ struct doctor {
     vector<pair<string, int>> cured;
 };
 
-int main()
+void readInput(int &noProblem, int &noDoctors, vector<problem> &problemList, vector<doctor> &doctorList)
 {
     ifstream inFile("input2.txt");
 
-    int noProblem, noDoctors;
-
-
     inFile >> noProblem;
-    vector<problem> problemList;
+    
 
     for (int i = 0; i < noProblem; i++)
     {
@@ -45,7 +42,6 @@ int main()
 
     inFile >> noDoctors;
 
-    vector<doctor> doctorList;
 
     for (int i = 0; i < noDoctors; i++)
     {
@@ -62,6 +58,50 @@ int main()
         // cout << doc.id << ' ' << doc.nr_specialities << '\n';
         doctorList.push_back(doc);
     }
+}
+
+void solve(vector<problem> &problemList, vector<doctor> &doctorList)
+{
+    for (auto& currProblem : problemList)
+    {
+        auto doctorWhoSolves = find_if(doctorList.begin(), doctorList.end(), [&](doctor doc) {
+            return doc.specialities.contains(currProblem.speciality) && doc.freeAfter <= currProblem.arrivalTime && doc.freeAfter + currProblem.cureTime <= 17;
+            });
+        if (doctorWhoSolves != doctorList.end())
+        {
+            ///DEBUG: affirmative finding of doctor who can solve the problem
+            //cout << "s-a gasit doctorul" << doctor->id << "si rezolva problema " << prb.id << endl;
+            doctorWhoSolves->freeAfter += currProblem.cureTime;
+            doctorWhoSolves->cured.push_back(pair<string, int>(currProblem.id, currProblem.arrivalTime));
+        }
+    }
+}
+
+
+void printOutput(vector<doctor>& doctorList)
+{
+    for (auto& doctor : doctorList)
+    {
+        if (!doctor.cured.empty())
+        {
+            cout << doctor.id << " ";
+            for (auto& curedProblem : doctor.cured)
+            {
+                cout << curedProblem.first << " " << curedProblem.second << " ";
+            }
+            cout << endl;
+        }
+    }
+}
+
+int main()
+{
+  
+    int noProblem = 0, noDoctors = 0;
+    vector<problem> problemList;
+    vector<doctor> doctorList;
+    
+    readInput(noProblem, noDoctors, problemList, doctorList);
 
     sort(problemList.begin(), problemList.end(), [](auto& prb1, auto& prb2)
         {
@@ -79,31 +119,9 @@ int main()
     cout << endl;
     */
 
-    for (auto& currProblem : problemList)
-    {
-        auto doctorWhoSolves = find_if(doctorList.begin(), doctorList.end(), [&](doctor doc) {
-            return doc.specialities.contains(currProblem.speciality) && doc.freeAfter <= currProblem.arrivalTime && doc.freeAfter + currProblem.cureTime <=17;
-            });
-        if (doctorWhoSolves != doctorList.end())
-        {
-            ///DEBUG: affirmative finding of doctor who can solve the problem
-            //cout << "s-a gasit doctorul" << doctor->id << "si rezolva problema " << prb.id << endl;
-            doctorWhoSolves->freeAfter += currProblem.cureTime;
-            doctorWhoSolves->cured.push_back( pair<string, int>(currProblem.id, currProblem.arrivalTime) );
-        }
-    }
-    for (auto& doctor : doctorList)
-    {
-        if (!doctor.cured.empty())
-        {
-        cout << doctor.id << " ";
-        for (auto& curedProblem : doctor.cured)
-        {
-            cout << curedProblem.first << " " << curedProblem.second << " ";
-        }
-        cout << endl;
-        }
-    }
+    solve(problemList, doctorList);
+
+    printOutput(doctorList);
 
     return 0;
 }
